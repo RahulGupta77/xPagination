@@ -51,11 +51,10 @@ const App = () => {
   return (
     <div className="App">
       <h1>Employee Data</h1>
-      {error && <p>{error}</p>}
+      {/* {error && <p>{error}</p>} */}
       <Table data={currentEmployees} loading={loading} />
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
         onPrevious={handlePrevious}
         onNext={handleNext}
       />
