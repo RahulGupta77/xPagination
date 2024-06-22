@@ -1,65 +1,84 @@
-import React, { useState, useEffect } from 'react';
-import Table from './components/Table';
-import Pagination from './components/Pagination';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import { useState, useEffect } from "react";
 
-const App = () => {
-  const [employees, setEmployees] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const pageSize = 10;
+function App() {
+  const [details, setDetails] = useState([]);
+  const [page, setPage] = useState(1);
+  const fetchData = async () => {
+    try {
+      const resp = await fetch(
+        "https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json"
+      );
+      const data = await resp.json();
+      setDetails(data);
+    } catch (err) {
+      alert("failed to fetch data");
+    }
+  };
 
+  const handleDecrement = () => {
+    if (page === 1) return;
+    setPage((page) => page - 1);
+  };
+
+  const handleIncrement = () => {
+    if (page === Math.ceil(details.length / 10)) return;
+    setPage((page) => page + 1);
+  };
   useEffect(() => {
-    setLoading(true);
-    fetch('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setEmployees(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setError('failed to fetch data');
-        alert('failed to fetch data'); // Show alert message on error
-        setLoading(false);
-      });
+    fetchData();
   }, []);
-
-  const totalPages = Math.ceil(employees.length / pageSize);
-
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const currentEmployees = employees.slice(startIndex, startIndex + pageSize);
-
   return (
-    <div className="App">
-      <h1>Employee Data</h1>
-      {/* {error && <p>{error}</p>} */}
-      <Table data={currentEmployees} loading={loading} />
-      <Pagination
-        currentPage={currentPage}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-      />
+    <div>
+      <div className="App">
+        <h3>Employee Data Table</h3>
+        <table className="table">
+          <thead className="flex-container">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          {details.slice((page - 1) * 10, page * 10).map((detail, index) => (
+            <tbody key={index}>
+              <tr>
+                <td>{detail.id}</td>
+                <td>{detail.name}</td>
+                <td>{detail.email}</td>
+                <td>{detail.role}</td>
+              </tr>
+            </tbody>
+          ))}
+          {/* {details.map(
+            (detail, index) =>
+              (page - 1) * 10 <= index &&
+              index <= page * 10 - 1 && (
+                <tbody>
+                  <tr>
+                    <td>{detail.id}</td>
+                    <td>{detail.name}</td>
+                    <td>{detail.email}</td>
+                    <td>{detail.role}</td>
+                  </tr>
+                </tbody>
+              )
+          )} */}
+        </table>
+      </div>
+      <div className="buttons">
+        <button type="button" onClick={handleDecrement}>
+          Previous
+        </button>
+        <div>{page}</div>
+        <button type="button" onClick={handleIncrement}>
+          Next
+        </button>
+      </div>
     </div>
   );
-};
+}
 
 export default App;
