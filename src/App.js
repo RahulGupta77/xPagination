@@ -48,7 +48,7 @@ const App = () => {
   };
 
   const startIndex = (currentPage - 1) * pageSize;
-  const currentEmployees = employees.slice(startIndex, startIndex + pageSize);
+  const currentEmployees = employees.slice(startIndex, currentPage*10);
 
   return (
     <div>
